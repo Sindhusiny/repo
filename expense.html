@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Form Example</title>
+  <style>
+    li {
+      margin-bottom: 10px;
+    }
+
+    .expense-details {
+      display: flex;
+      align-items: center;
+    }
+
+    .expense-details span {
+      margin-right: 10px;
+    }
+
+    .expense-actions {
+      margin-top: 5px;
+    }
+
+    .expense-actions button {
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Form Example</h2>
+  <form id="myForm">
+    <!-- Expense amount input -->
+    <label for="name">Choose expense amount</label>
+    <input type="number" id="name" name="name">
+  
+    <!-- Expense description dropdown -->
+    <label for="des">Choose description</label>
+    <select id="des" name="des">
+      <option value="vacation">Vacation</option>
+      <option value="hobby">Hobby</option>
+      <option value="a">A</option>
+      <option value="b">B</option>
+    </select>
+  
+    <!-- Expense category dropdown -->
+    <label for="cat">Choose category</label>
+    <select id="cat" name="cat">
+      <option value="cinema">Cinema</option>
+      <option value="beach">Beach</option>
+      <option value="trip">Trip</option>
+      <option value="shopping">Shopping</option>
+    </select>
+  
+    <!-- Submit button -->
+    <input type="submit" value="Add expense">
+  </form>
+  
+  
+  <h2>Submitted Data</h2>
+  <ul id="dataList"></ul>
+
+  <script>
+    // Check if the page is being loaded for the first time or refreshed
+    window.onload = function() {
+      // Clear the local storage when the page is loaded
+      localStorage.removeItem('formData');
+    };
+
+    // Function to handle form submission
+    function handleSubmit(event) {
+      event.preventDefault(); // Prevents form submission to a server
+      
+      // Get form values
+      var name = document.getElementById('name').value;
+      var des = document.getElementById('des').value;
+      var cat = document.getElementById('cat').value;
+      
+      // Create an object to hold the data
+      var data = {
+        name: name,
+        des: des,
+        cat: cat
+      };
+      
+      // Get existing data from local storage
+      var existingData = localStorage.getItem('formData');
+      var dataList = document.getElementById('dataList');
+      
+      if (existingData) {
+        // Append the new data to existing data
+        var dataArray = JSON.parse(existingData);
+        dataArray.push(data);
+        localStorage.setItem('formData', JSON.stringify(dataArray));
+        
+        // Clear the displayed list
+        dataList.innerHTML = '';
+        
+        // Display all the data on the screen
+        dataArray.forEach(function(item, index) {
+          var listItem = document.createElement('li');
+          listItem.classList.add('expense-item');
+
+          var expenseDetails = document.createElement('div');
+          expenseDetails.classList.add('expense-details');
+
+          var expenseAmount = document.createElement('span');
+          expenseAmount.textContent = 'Expense Amount: ' + item.name;
+          expenseDetails.appendChild(expenseAmount);
+
+          var expenseCategory = document.createElement('span');
+          expenseCategory.textContent = 'Category: ' + item.cat;
+          expenseDetails.appendChild(expenseCategory);
+
+          var expenseDescription = document.createElement('span');
+          expenseDescription.textContent = 'Description: ' + item.des;
+          expenseDetails.appendChild(expenseDescription);
+
+          listItem.appendChild(expenseDetails);
+
+          var expenseActions = document.createElement('div');
+          expenseActions.classList.add('expense-actions');
+
+          var deleteButton = document.createElement('button');
+          deleteButton.textContent = 'Delete';
+          deleteButton.addEventListener('click', function() {
+            // Remove the item from the data array
+            dataArray.splice(index, 1);
+            // Update the data in local storage
+            localStorage.setItem('formData', JSON.stringify(dataArray));
+            // Remove the item from the displayed list
+            dataList.removeChild(listItem);
+          });
+          expenseActions.appendChild(deleteButton);
+
+          var editButton = document.createElement('button');
+          editButton.textContent = 'Edit';
+          editButton.addEventListener('click', function() {
+            // Pre-fill the form with the selected item's data
+            document.getElementById('name').value = item.name;
+            document.getElementById('cat').value = item.cat;
+            document.getElementById('des').value = item.des;
+            // Remove the item from local storage
+            dataArray.splice(index, 1);
+            // Update the data in local storage
+            localStorage.setItem('formData', JSON.stringify(dataArray));
+            // Remove the item from the displayed list
+            dataList.removeChild(listItem);
+          });
+          expenseActions.appendChild(editButton);
+
+          listItem.appendChild(expenseActions);
+
+          dataList.appendChild(listItem);
+        });
+      } else {
+        // Save the data to local storage
+        localStorage.setItem('formData', JSON.stringify([data]));
+
+        // Display the submitted data on the screen
+        var listItem = document.createElement('li');
+        listItem.classList.add('expense-item');
+
+        var expenseDetails = document.createElement('div');
+        expenseDetails.classList.add('expense-details');
+
+        var expenseAmount = document.createElement('span');
+        expenseAmount.textContent = 'Expense Amount: ' + name;
+        expenseDetails.appendChild(expenseAmount);
+
+        var expenseCategory = document.createElement('span');
+        expenseCategory.textContent = 'Category: ' + cat;
+        expenseDetails.appendChild(expenseCategory);
+
+        var expenseDescription = document.createElement('span');
+        expenseDescription.textContent = 'Description: ' + des;
+        expenseDetails.appendChild(expenseDescription);
+
+        listItem.appendChild(expenseDetails);
+
+        var expenseActions = document.createElement('div');
+        expenseActions.classList.add('expense-actions');
+
+        var deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.addEventListener('click', function() {
+          // Remove the item from local storage
+          localStorage.removeItem('formData');
+          // Remove the item from the displayed list
+          dataList.removeChild(listItem);
+        });
+        expenseActions.appendChild(deleteButton);
+
+        var editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.addEventListener('click', function() {
+          // Pre-fill the form with the selected item's data
+          document.getElementById('name').value = data.name;
+          document.getElementById('cat').value = data.cat;
+          document.getElementById('des').value = data.des;
+          // Remove the item from local storage
+          localStorage.removeItem('formData');
+          // Remove the item from the displayed list
+          dataList.removeChild(listItem);
+        });
+        expenseActions.appendChild(editButton);
+
+        listItem.appendChild(expenseActions);
+
+        dataList.appendChild(listItem);
+      }
+      
+      // Clear the form inputs
+      document.getElementById('myForm').reset();
+    }
+    
+    // Add event listener to the form
+    document.getElementById('myForm').addEventListener('submit', handleSubmit);
+  </script>
+</body>
+</html>
